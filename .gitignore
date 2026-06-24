@@ -8,4 +8,4 @@ __pycache__/
 *$py.class
 
 # Data files
-data/*.csv
+data/
