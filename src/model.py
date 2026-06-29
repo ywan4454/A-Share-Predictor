@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-from scipy.stats import binom_test
+from scipy.stats import binomtest
 from src.stocks_universe import SECTORS
 from src.processor import get_feature_columns
 
@@ -38,7 +38,7 @@ def _find_optimal_threshold(test_probs: np.ndarray, y_test: np.ndarray) -> tuple
         wins = (pred_dirs == actuals).sum()
         winrate = wins / n_signals
 
-        p_val = binom_test(wins, n_signals, 0.5, alternative='greater')
+        p_val = binomtest(wins, n_signals, 0.5, alternative='greater').pvalue
 
         if p_val < 0.05 and winrate > best[1]:
             best = (th, winrate, int(n_signals), float(p_val))
