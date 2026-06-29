@@ -70,9 +70,14 @@ def train_sector_models(df: pd.DataFrame) -> dict:
             for i in range(max(0, len(X_test) - 7), len(X_test)):
                 dt_str = test_dates[i].strftime("%Y-%m-%d")
                 p_up = float(test_probs[i])
-                pred_dir = 1 if p_up >= 0.5 else 0
                 actual = int(y_test.iloc[i])
-                correct = 1 if pred_dir == actual else 0
+                # 中性区间 [0.45, 0.55]：不做方向判断
+                if 0.45 <= p_up <= 0.55:
+                    pred_dir = None
+                    correct = None  # 中性，不计入胜负
+                else:
+                    pred_dir = 1 if p_up > 0.55 else 0
+                    correct = 1 if pred_dir == actual else 0
                 backtest_7.append({
                     "date": dt_str,
                     "prob_up": p_up,

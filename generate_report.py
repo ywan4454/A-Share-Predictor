@@ -68,6 +68,8 @@ def update_and_get_history(df: pd.DataFrame, sector_results: dict) -> dict:
             for sk, s_data in daily_data.items():
                 if s_data.get("correct") is not None:
                     continue  # 已有结果
+                if s_data.get("pred_dir") is None:
+                    continue  # 中性预测，不做判断
                 label_col = f"{sk}_label"
                 if label_col in df.columns and not pd.isna(df.loc[idx, label_col]):
                     actual = int(df.loc[idx, label_col])
@@ -78,7 +80,11 @@ def update_and_get_history(df: pd.DataFrame, sector_results: dict) -> dict:
     today_data = {}
     for sk, res in sector_results.items():
         prob = float(res["prob_up"])
-        pred_dir = 1 if prob >= 0.5 else 0
+        # 中性区间 [0.45, 0.55]：不做方向判断
+        if 0.45 <= prob <= 0.55:
+            pred_dir = None
+        else:
+            pred_dir = 1 if prob > 0.55 else 0
         today_data[sk] = {
             "prob_up": prob,
             "pred_dir": pred_dir,
@@ -114,14 +120,21 @@ def generate_markdown(sector_results: dict, history: dict, df: pd.DataFrame) -> 
             if d_data and d_data.get("correct") is not None:
                 results.append("✅" if d_data["correct"] == 1 else "❌")
             else:
-                results.append("➖")
+                results.append("➖")  # 中性 / 无数据
         hist_str = "".join(results)
             
-        prob_color = "info" if prob >= 0.5 else "warning"
-        dir_icon = "📈" if prob >= 0.5 else "📉"
+        if prob > 0.55:
+            prob_color = "info"
+            dir_icon = "UP"
+        elif prob < 0.45:
+            prob_color = "warning"
+            dir_icon = "DOWN"
+        else:
+            prob_color = "comment"
+            dir_icon = "NEUTRAL"
         
         lines.append(f"**[{i:02d}] {sector_name}**")
-        lines.append(f"> <font color=\"{prob_color}\">PROB_UP</font>: **{prob:.1%}** {dir_icon}")
+        lines.append(f"> <font color=\"{prob_color}\">PROB_UP</font>: **{prob:.1%}** [{dir_icon}]")
         lines.append(f"> <font color=\"comment\">PAST_7 </font>: [{hist_str}]")
         lines.append("")
 
