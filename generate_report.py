@@ -79,12 +79,13 @@ def update_and_get_history(df: pd.DataFrame, sector_results: dict) -> dict:
     today_data = {}
     for sk, res in sector_results.items():
         prob = float(res["prob_up"])
-        th = float(res.get("threshold", 0.55))
-        # 用每个板块的最优阈值判断中性区间
-        if (1.0 - th) <= prob <= th:
+        th_up = float(res.get("threshold_up", 0.55))
+        th_down = float(res.get("threshold_down", 0.45))
+        # 用每个板块的多空不对称最优阈值判断
+        if th_down < prob < th_up:
             pred_dir = None
         else:
-            pred_dir = 1 if prob > th else 0
+            pred_dir = 1 if prob >= th_up else 0
         today_data[sk] = {
             "prob_up": prob,
             "pred_dir": pred_dir,
@@ -113,7 +114,8 @@ def generate_markdown(sector_results: dict, history: dict, df: pd.DataFrame) -> 
     for i, (sk, res) in enumerate(sector_results.items(), 1):
         sector_name = res["sector_name"]
         prob = res["prob_up"]
-        th = res.get("threshold", 0.55)
+        th_up = res.get("threshold_up", 0.55)
+        th_down = res.get("threshold_down", 0.45)
         winrate = res.get("filtered_winrate", 0)
         
         results = []
@@ -128,10 +130,10 @@ def generate_markdown(sector_results: dict, history: dict, df: pd.DataFrame) -> 
                 results.append("⚪")  # 无数据
         hist_str = "".join(results)
             
-        if prob > th:
+        if prob >= th_up:
             prob_color = "info"
             dir_icon = "UP"
-        elif prob < (1.0 - th):
+        elif prob <= th_down:
             prob_color = "warning"
             dir_icon = "DOWN"
         else:
@@ -140,7 +142,7 @@ def generate_markdown(sector_results: dict, history: dict, df: pd.DataFrame) -> 
         
         lines.append(f"**[{i:02d}] {sector_name}**")
         lines.append(f"> <font color=\"{prob_color}\">PROB_UP</font>: **{prob:.1%}** [{dir_icon}]")
-        lines.append(f"> <font color=\"comment\">PAST_7 </font>: [{hist_str}] | WR: {winrate:.0%} (th={th:.2f})")
+        lines.append(f"> <font color=\"comment\">PAST_7 </font>: [{hist_str}] | WR: {winrate:.0%} (up={th_up:.2f}/dn={th_down:.2f})")
         lines.append("")
 
     return "\n".join(lines)
