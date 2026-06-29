@@ -28,63 +28,75 @@ TODAY_STR     = datetime.now().strftime("%Y-%m-%d")
 
 
 
-def build_backtest_table(df: pd.DataFrame, sector_results: dict) -> dict:
-    """
-    对过去 BACKTEST_DAYS 个交易日，用已训练好的模型做预测，与实际对比
-    返回 {sector_key: DataFrame with columns [date, prob_up, actual_label, correct]}
-    """
-    from src.processor import get_feature_columns
-    feature_cols = get_feature_columns(df)
-    backtest = {}
+import json
 
+CACHE_FILE = "data/prediction_history.json"
+
+def update_and_get_history(df: pd.DataFrame, sector_results: dict) -> dict:
+    """
+    维护一个本地的真实预测缓存，防止未来函数。
+    读取历史预测，填入 df 中已知的真实涨跌结果，然后把今天的预测追加进去保存。
+    """
+    history = {}
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "r") as f:
+            history = json.load(f)
+
+    # 1. 更新过去预测的真实结果
+    for date_str, daily_data in history.items():
+        if date_str in df.index.strftime("%Y-%m-%d"):
+            idx = df.index[df.index.strftime("%Y-%m-%d") == date_str][0]
+            for sk, s_data in daily_data.items():
+                if s_data.get("correct") is not None:
+                    continue  # 已有结果
+                label_col = f"{sk}_label"
+                if label_col in df.columns and not pd.isna(df.loc[idx, label_col]):
+                    actual = int(df.loc[idx, label_col])
+                    s_data["actual_label"] = actual
+                    s_data["correct"] = 1 if s_data["pred_dir"] == actual else 0
+
+    # 2. 追加今天的预测
+    today_data = {}
     for sk, res in sector_results.items():
-        label_col = f"{sk}_label"
-        if label_col not in df.columns:
-            continue
+        prob = float(res["prob_up"])
+        pred_dir = 1 if prob >= 0.5 else 0
+        today_data[sk] = {
+            "prob_up": prob,
+            "pred_dir": pred_dir,
+            "actual_label": None,
+            "correct": None
+        }
+    history[TODAY_STR] = today_data
 
-        subset = df[feature_cols + [label_col]].dropna()
-        if len(subset) < BACKTEST_DAYS + 10:
-            continue
+    with open(CACHE_FILE, "w") as f:
+        json.dump(history, f, indent=4)
 
-        # 取最后 BACKTEST_DAYS 行作为回测窗口
-        bt_window = subset.iloc[-(BACKTEST_DAYS):]
-        X_bt = bt_window[feature_cols]
-        y_bt = bt_window[label_col].astype(int)
-
-        probs = res["model"].predict_proba(X_bt)[:, 1]
-        preds = (probs >= 0.5).astype(int)
-        correct = (preds == y_bt.values).astype(int)
-
-        backtest[sk] = pd.DataFrame({
-            "date":         bt_window.index.strftime("%Y-%m-%d"),
-            "prob_up":      probs,
-            "pred_dir":     ["↑" if p == 1 else "↓" for p in preds],
-            "actual_label": y_bt.values,
-            "actual_dir":   ["↑" if a == 1 else "↓" for a in y_bt.values],
-            "correct":      correct,
-        })
-
-    return backtest
+    return history
 
 
-def generate_markdown(sector_results: dict, backtest: dict, df: pd.DataFrame) -> str:
+def generate_markdown(sector_results: dict, history: dict, df: pd.DataFrame) -> str:
     lines = []
     
     lines.append(f"## 🤖 AI-Quant System")
     lines.append(f"> **Date**: {TODAY_STR} | **Target**: A-Share")
     lines.append("")
     
+    # 筛选出已经有真实结果的历史日期，取最近7天
+    past_dates = sorted([d for d in history.keys() if d != TODAY_STR and any(v.get("correct") is not None for v in history[d].values())])
+    last_7_dates = past_dates[-7:]
+    
     for i, (sk, res) in enumerate(sector_results.items(), 1):
         sector_name = res["sector_name"]
         prob = res["prob_up"]
         
-        hist_str = ""
-        if sk in backtest:
-            bt_df = backtest[sk]
-            results = []
-            for _, row in bt_df.iterrows():
-                results.append("✅" if row["correct"] == 1 else "❌")
-            hist_str = "".join(results)
+        results = []
+        for d in last_7_dates:
+            d_data = history[d].get(sk)
+            if d_data and d_data.get("correct") is not None:
+                results.append("✅" if d_data["correct"] == 1 else "❌")
+            else:
+                results.append("➖")
+        hist_str = "".join(results)
             
         prob_color = "info" if prob >= 0.5 else "warning"
         dir_icon = "📈" if prob >= 0.5 else "📉"
@@ -129,11 +141,11 @@ def main():
     print("\n训练模型...")
     sector_results = train_sector_models(df)
 
-    print("\n生成回测数据...")
-    backtest = build_backtest_table(df, sector_results)
+    print("\n生成/更新真实预测缓存...")
+    history = update_and_get_history(df, sector_results)
 
     print("\n生成报告...")
-    md_content = generate_markdown(sector_results, backtest, df)
+    md_content = generate_markdown(sector_results, history, df)
 
     with open(REPORT_FILE, "w", encoding="utf-8") as f:
         f.write(md_content)
