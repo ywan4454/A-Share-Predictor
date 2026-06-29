@@ -2,7 +2,7 @@
     "2026-06-29": {
         "s1_design": {
             "prob_up": 0.4545314134925721,
-            "pred_dir": null,
+            "pred_dir": 0,
             "actual_label": null,
             "correct": null
         },
