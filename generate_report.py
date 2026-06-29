@@ -45,7 +45,7 @@ def update_and_get_history(df: pd.DataFrame, sector_results: dict) -> dict:
 
     # 0. 冷启动：如果缓存中已验证结果不足7天，用回测数据填充
     verified_dates = [d for d in history.keys()
-                      if any(v.get("correct") is not None for v in history[d].values())]
+                      if any(v.get("actual_label") is not None for v in history[d].values())]
     if len(verified_dates) < 7:
         # 从模型的 backtest_7 中提取回测结果写入缓存
         for sk, res in sector_results.items():
@@ -68,13 +68,12 @@ def update_and_get_history(df: pd.DataFrame, sector_results: dict) -> dict:
             for sk, s_data in daily_data.items():
                 if s_data.get("correct") is not None:
                     continue  # 已有结果
-                if s_data.get("pred_dir") is None:
-                    continue  # 中性预测，不做判断
                 label_col = f"{sk}_label"
                 if label_col in df.columns and not pd.isna(df.loc[idx, label_col]):
                     actual = int(df.loc[idx, label_col])
                     s_data["actual_label"] = actual
-                    s_data["correct"] = 1 if s_data["pred_dir"] == actual else 0
+                    if s_data.get("pred_dir") is not None:
+                        s_data["correct"] = 1 if s_data["pred_dir"] == actual else 0
 
     # 2. 追加今天的预测
     today_data = {}
@@ -108,7 +107,7 @@ def generate_markdown(sector_results: dict, history: dict, df: pd.DataFrame) -> 
     lines.append("")
     
     # 筛选出已经有真实结果的历史日期，取最近7天
-    past_dates = sorted([d for d in history.keys() if d != TODAY_STR and any(v.get("correct") is not None for v in history[d].values())])
+    past_dates = sorted([d for d in history.keys() if d != TODAY_STR and any(v.get("actual_label") is not None for v in history[d].values())])
     last_7_dates = past_dates[-7:]
     
     for i, (sk, res) in enumerate(sector_results.items(), 1):
@@ -120,10 +119,13 @@ def generate_markdown(sector_results: dict, history: dict, df: pd.DataFrame) -> 
         results = []
         for d in last_7_dates:
             d_data = history[d].get(sk)
-            if d_data and d_data.get("correct") is not None:
-                results.append("✅" if d_data["correct"] == 1 else "❌")
+            if d_data and d_data.get("actual_label") is not None:
+                if d_data.get("pred_dir") is None:
+                    results.append("➖")  # 中性
+                else:
+                    results.append("✅" if d_data.get("correct") == 1 else "❌")
             else:
-                results.append("➖")
+                results.append("⚪")  # 无数据
         hist_str = "".join(results)
             
         if prob > th:
