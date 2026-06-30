@@ -1,0 +1,226 @@
+{
+    "2026-06-22": {
+        "s1_design": {
+            "prob_up": 0.4994877719614731,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        },
+        "s2_mfg": {
+            "prob_up": 0.39496947300930646,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s3_pkg": {
+            "prob_up": 0.5120006693318039,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s4_server": {
+            "prob_up": 0.5247533206481546,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s5_connect": {
+            "prob_up": 0.4612766008292678,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        }
+    },
+    "2026-06-23": {
+        "s1_design": {
+            "prob_up": 0.5456321058021668,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        },
+        "s2_mfg": {
+            "prob_up": 0.5826805980242752,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        },
+        "s3_pkg": {
+            "prob_up": 0.6064169228836049,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        },
+        "s4_server": {
+            "prob_up": 0.4974276608334833,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        },
+        "s5_connect": {
+            "prob_up": 0.5991851849974973,
+            "pred_dir": 1,
+            "actual_label": 0,
+            "correct": 0
+        }
+    },
+    "2026-06-24": {
+        "s1_design": {
+            "prob_up": 0.47669316845158266,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s2_mfg": {
+            "prob_up": 0.4109118976921311,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s3_pkg": {
+            "prob_up": 0.5385900451464155,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s4_server": {
+            "prob_up": 0.519084813360921,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s5_connect": {
+            "prob_up": 0.5450255361435011,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        }
+    },
+    "2026-06-25": {
+        "s1_design": {
+            "prob_up": 0.5320268153013434,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s2_mfg": {
+            "prob_up": 0.626471529045515,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s3_pkg": {
+            "prob_up": 0.6098528776483954,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s4_server": {
+            "prob_up": 0.5809957942660404,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s5_connect": {
+            "prob_up": 0.5104812222705173,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        }
+    },
+    "2026-06-26": {
+        "s1_design": {
+            "prob_up": 0.4452273956127875,
+            "pred_dir": 0,
+            "actual_label": 0,
+            "correct": 1
+        },
+        "s2_mfg": {
+            "prob_up": 0.6867215888291954,
+            "pred_dir": 1,
+            "actual_label": 1,
+            "correct": 1
+        },
+        "s3_pkg": {
+            "prob_up": 0.5302991326180455,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        },
+        "s4_server": {
+            "prob_up": 0.5766006384004055,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        },
+        "s5_connect": {
+            "prob_up": 0.6233895924531877,
+            "pred_dir": 1,
+            "actual_label": 0,
+            "correct": 0
+        }
+    },
+    "2026-06-29": {
+        "s1_design": {
+            "prob_up": 0.47851709940732357,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s2_mfg": {
+            "prob_up": 0.4744466630833789,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s3_pkg": {
+            "prob_up": 0.45995296624037585,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        },
+        "s4_server": {
+            "prob_up": 0.4487489259352923,
+            "pred_dir": null,
+            "actual_label": 1,
+            "correct": null
+        },
+        "s5_connect": {
+            "prob_up": 0.4210216560521268,
+            "pred_dir": null,
+            "actual_label": 0,
+            "correct": null
+        }
+    },
+    "2026-06-30": {
+        "s1_design": {
+            "prob_up": 0.4547301943600286,
+            "pred_dir": null,
+            "actual_label": null,
+            "correct": null
+        },
+        "s2_mfg": {
+            "prob_up": 0.5444570328462032,
+            "pred_dir": null,
+            "actual_label": null,
+            "correct": null
+        },
+        "s3_pkg": {
+            "prob_up": 0.4575685490713057,
+            "pred_dir": null,
+            "actual_label": null,
+            "correct": null
+        },
+        "s4_server": {
+            "prob_up": 0.5050862364365059,
+            "pred_dir": null,
+            "actual_label": null,
+            "correct": null
+        },
+        "s5_connect": {
+            "prob_up": 0.5234785398752811,
+            "pred_dir": null,
+            "actual_label": null,
+            "correct": null
+        }
+    }
+}
